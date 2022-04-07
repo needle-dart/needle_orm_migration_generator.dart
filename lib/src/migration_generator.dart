@@ -103,11 +103,21 @@ class ColumnGenerator {
 
   String generate() {
     var columnType = inferColumnType(field.type);
-    var columnMethodName = field.isID() ? 'serial' : methodName(columnType);
     var columnName = getColumnName(name);
+    if (isModel(field)) {
+      columnName += '_id';
+      columnType = ColumnType.bigInt;
+    }
+    var columnMethodName = field.isID() ? 'serial' : methodName(columnType);
+
     return '''
       table.$columnMethodName('$columnName');
       ''';
+  }
+
+  bool isModel(FieldElement field) {
+    return field.metadata.ormAnnotations().whereType<ManyToOne>().isNotEmpty ||
+        field.metadata.ormAnnotations().whereType<OneToOne>().isNotEmpty;
   }
 
   String methodName(ColumnType type) {
@@ -119,6 +129,9 @@ class ColumnGenerator {
         break;
       case ColumnType.serial:
         methodName = 'serial';
+        break;
+      case ColumnType.bigInt:
+        methodName = 'integer';
         break;
       case ColumnType.int:
         methodName = 'integer';

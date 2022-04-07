@@ -14,7 +14,7 @@ class BookMigration extends Migration {
 
       table.float('price');
 
-      table.varChar('author');
+      table.integer('author_id');
 
       table.serial('id');
 
