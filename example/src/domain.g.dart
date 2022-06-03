@@ -52,8 +52,6 @@ class UserMigration extends Migration {
 
       table.integer('age');
 
-      table.varChar('books');
-
       table.serial('id');
 
       table.integer('version');

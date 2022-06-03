@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:analyzer/dart/element/element.dart';
-import 'package:angel3_orm/angel3_orm.dart';
+import 'package:angel3_orm/angel3_orm.dart' hide ManyToMany;
 import 'package:build/src/builder/build_step.dart';
 import 'package:inflection3/inflection3.dart';
 import 'package:needle_orm/needle_orm.dart';
@@ -102,6 +102,9 @@ class ColumnGenerator {
   ColumnGenerator(this.field) : name = field.name.removePrefix();
 
   String generate() {
+    if (shouldIgnore(field)) {
+      return '';
+    }
     var columnType = inferColumnType(field.type);
     var columnName = getColumnName(name);
     if (isModel(field)) {
@@ -118,6 +121,12 @@ class ColumnGenerator {
   bool isModel(FieldElement field) {
     return field.metadata.ormAnnotations().whereType<ManyToOne>().isNotEmpty ||
         field.metadata.ormAnnotations().whereType<OneToOne>().isNotEmpty;
+  }
+
+  bool shouldIgnore(FieldElement field) {
+    return field.metadata.ormAnnotations().whereType<ManyToMany>().isNotEmpty ||
+        field.metadata.ormAnnotations().whereType<OneToMany>().isNotEmpty ||
+        field.metadata.ormAnnotations().whereType<Transient>().isNotEmpty;
   }
 
   String methodName(ColumnType type) {
